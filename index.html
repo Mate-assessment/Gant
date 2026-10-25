@@ -290,6 +290,13 @@ button.span:focus-visible{outline:3px solid var(--cyan);outline-offset:2px;opaci
 .toast.bad{background:#B42318}
 
 [hidden]{display:none!important}
+
+.pw{position:relative;display:block}
+.pact .pw{display:inline-block;flex:1;min-width:160px}
+.pw input{padding-inline-end:44px!important;width:100%}
+.eye{all:unset;position:absolute;inset-inline-end:6px;top:50%;transform:translateY(-50%);width:34px;height:34px;display:grid;place-items:center;border-radius:8px;color:var(--muted);cursor:pointer}
+.eye:hover{color:var(--text);background:var(--tint)}.eye:focus-visible{outline:3px solid var(--cyan)}
+.eye .slash{display:none}.eye[aria-pressed="true"] .slash{display:inline}
 </style>
 
 <div class="wrap">
@@ -615,6 +622,13 @@ const ERR = {
   busy:'מישהי אחרת שומרת ממש עכשיו. נסו שוב בעוד רגע.',
   no_header:'לא נמצאו כותרות העמודות בגיליון (תחנה, תקופה, מעגל, תאריך, נושא במיקוד).'
 };
+const EYE = id => `<button type="button" class="eye" data-for="${id}" aria-label="הצגת הקוד" aria-pressed="false"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12Z"/><circle cx="12" cy="12" r="3"/><path class="slash" d="M3 3l18 18"/></svg></button>`;
+document.addEventListener('click', e => {
+  const b = e.target.closest('.eye'); if(!b) return;
+  const inp = document.getElementById(b.dataset.for); if(!inp) return;
+  const show = inp.type === 'password'; inp.type = show ? 'text' : 'password';
+  b.setAttribute('aria-pressed', show); b.setAttribute('aria-label', show ? 'הסתרת הקוד' : 'הצגת הקוד'); inp.focus();
+});
 function openForm(r){
   setClose(null); document.getElementById('pact').hidden = true;
   const v = r ? {st:r.station, period:r.period, circle:r.circle, date:r.dateText, topic:r.topic} : {st:'', period:'', circle:'', date:'', topic:''};
@@ -638,7 +652,7 @@ function openForm(r){
     <datalist id="f-pl">${MF.map(m=>`<option value="${m}">`).join('')}</datalist>
     <label for="f-topic">נושא במיקוד</label>
     <textarea id="f-topic" rows="3" required>${esc(v.topic)}</textarea>
-    ${getCode() ? '' : `<label for="f-code">קוד עריכה</label><input id="f-code" type="password" autocomplete="off" placeholder="הקוד שקיבלתן משירה">`}
+    ${getCode() ? '' : `<label for="f-code">קוד עריכה</label><span class="pw"><input id="f-code" type="password" autocomplete="off" placeholder="הקוד שקיבלתן משירה">${EYE('f-code')}</span>`}
     <p class="ferr" id="f-err" role="alert"></p>
     <div class="fbtns"><button class="btn pri" id="f-save">שמירה</button><button class="btn" id="f-cancel">ביטול</button></div>`;
   const stSel = document.getElementById('f-st'), stNew = document.getElementById('f-stn');
@@ -667,7 +681,7 @@ function openForm(r){
 }
 function confirmDelete(r){
   const act = document.getElementById('pact');
-  act.innerHTML = `<span class="cq">למחוק את המפגש מהגיליון?</span>${getCode()?'':'<input id="d-code" type="password" autocomplete="off" placeholder="קוד עריכה" aria-label="קוד עריכה">'}<button class="btn danger" id="d-yes">כן, למחוק</button><button class="btn" id="d-no">ביטול</button><p class="ferr" id="d-err" role="alert"></p>`;
+  act.innerHTML = `<span class="cq">למחוק את המפגש מהגיליון?</span>${getCode()?'':`<span class="pw"><input id="d-code" type="password" autocomplete="off" placeholder="קוד עריכה" aria-label="קוד עריכה">${EYE('d-code')}</span>`}<button class="btn danger" id="d-yes">כן, למחוק</button><button class="btn" id="d-no">ביטול</button><p class="ferr" id="d-err" role="alert"></p>`;
   document.getElementById('d-no').onclick = () => openRow(r.i, lastFocus);
   document.getElementById('d-yes').onclick = async (e) => {
     const err = document.getElementById('d-err'); const ci = document.getElementById('d-code');
