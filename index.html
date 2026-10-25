@@ -260,6 +260,12 @@ button.span:focus-visible{outline:3px solid var(--cyan);outline-offset:2px;opaci
 .head{position:sticky;top:0;z-index:6;box-shadow:0 4px 10px rgba(11,42,102,.18)}
 @media (min-width:1170px){.scroll{overflow:clip}.head{top:env(safe-area-inset-top,0px)}}
 @media (max-width:1169px){.scroll{max-height:calc(100vh - 90px);overflow:auto;overscroll-behavior:contain}}
+
+.bar{justify-content:space-between}
+.editbtn{display:inline-flex;align-items:center;gap:8px;margin-inline-start:auto;text-decoration:none;font:700 .95rem var(--font-body);color:#fff;
+  background:linear-gradient(115deg,#0A2A6E,#1259C3);border-radius:999px;padding:7px 16px;box-shadow:0 4px 12px rgba(18,89,195,.25)}
+.editbtn small{font-weight:600;font-size:.78rem;color:#BFE3F5;border-inline-start:1px solid rgba(255,255,255,.35);padding-inline-start:8px}
+.editbtn:hover{filter:brightness(1.1)}.editbtn:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
 </style>
 
 <div class="wrap">
@@ -280,6 +286,7 @@ button.span:focus-visible{outline:3px solid var(--cyan);outline-offset:2px;opaci
   <h2 class="sec gap">כל המפגשים</h2>
   <div class="bar">
     <div class="chips" id="chips" role="group" aria-label="סינון לפי מעגל"></div>
+    <a class="editbtn" id="editbtn" href="#" target="_blank" rel="noopener"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>עריכת המפגשים<small>לבעלות הרשאה</small></a>
       </div>
   <p class="hint">לחצו על מפגש כדי לראות את הפרטים. בטלפון אפשר לגלול את ציר הזמן הצידה.</p>
   <div class="scroll" id="scroll"><div class="gantt" id="gantt"></div></div>
@@ -304,7 +311,7 @@ button.span:focus-visible{outline:3px solid var(--cyan);outline-offset:2px;opaci
 <script>
 /* ===== הגדרות: כשהגיליון יפורסם לאינטרנט כ-CSV, מדביקים כאן את שני הקישורים ===== */
 const CFG = {
-  MEET_CSV: '',   /* קישור ה-CSV של הלשונית "ישיבות קוקפיט (צוות אגף)" */
+  MEET_CSV: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRChGg-KFB4XKmhciyy5fDp3FP2RdVGDpWgTWPBj9pC5Px6Uii9EC_J_Kg8WAgFkvZq--IrWJS_q8vj/pub?gid=1366039283&single=true&output=csv',   /* קישור ה-CSV של הלשונית "ישיבות קוקפיט (צוות אגף)" */
   SHEET_URL: 'https://docs.google.com/spreadsheets/d/1SPqqVeHWi0fylTD29X1ju9vzOMN_aF8ho0EpsUCFekI/edit',
   YEAR0: 2026,    /* ספטמבר–דצמבר = YEAR0, ינואר–אוגוסט = YEAR0+1 */
   SNAP_DATE: '19.10.2026'
@@ -538,6 +545,7 @@ async function load(){
     setSrc('מתעדכן מהגיליון. נטען ב-'+now.getDate()+'.'+(now.getMonth()+1)+' בשעה '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')+'.');
   }catch(e){ setSrc('לא הצלחנו לקרוא את הגיליון. מוצגים הנתונים מ-'+CFG.SNAP_DATE+'.'); }
 }
+document.getElementById('editbtn').href = CFG.SHEET_URL;
 render(); load();
 </script>
 
