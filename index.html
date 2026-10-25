@@ -286,7 +286,7 @@ button.span:focus-visible{outline:3px solid var(--cyan);outline-offset:2px;opaci
   <h2 class="sec gap">כל המפגשים</h2>
   <div class="bar">
     <div class="chips" id="chips" role="group" aria-label="סינון לפי מעגל"></div>
-    <a class="editbtn" id="editbtn" href="#" target="_blank" rel="noopener"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>עריכת המפגשים<small>לבעלות הרשאה</small></a>
+    <a class="editbtn" id="editbtn" hidden href="#" target="_blank" rel="noopener"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>עריכת המפגשים<small>לבעלות הרשאה</small></a>
       </div>
   <p class="hint">לחצו על מפגש כדי לראות את הפרטים. בטלפון אפשר לגלול את ציר הזמן הצידה.</p>
   <div class="scroll" id="scroll"><div class="gantt" id="gantt"></div></div>
@@ -345,8 +345,15 @@ function parseCSV(text){
   return rows;
 }
 function datesOf(text, period){
-  const pts=[]; const re=/(?<![\d:.])(\d{1,2})\.(\d{1,2})(?![\d:.])/g; let m;
-  while((m=re.exec(text))){ const d=+m[1], mo=+m[2]; if(mo>=1&&mo<=12&&d>=1&&d<=31) pts.push(iso(yearOf(mo),mo,d)); }
+  const pts=[]; let m;
+  const add = (d,mo) => { if(mo>=1&&mo<=12&&d>=1&&d<=31) pts.push(iso(yearOf(mo),mo,d)); };
+  const full=/(?<![\d:./])(\d{1,2})[./](\d{1,2})[./](\d{2,4})(?![\d:./])/g;   /* 10/7/2027 או 10.7.27 */
+  while((m=full.exec(text))) add(+m[1],+m[2]);
+  text = text.replace(full,' ');
+  const dot=/(?<![\d:.])(\d{1,2})\.(\d{1,2})(?![\d:.])/g;                       /* 8.11 */
+  while((m=dot.exec(text))) add(+m[1],+m[2]);
+  const sl=/(?<![\d:./])(\d{1,2})\/(\d{1,2})(?![\d:./])/g;                     /* 10/7 */
+  while((m=sl.exec(text))) add(+m[1],+m[2]);
   const u=[...new Set(pts)].sort();
   if(u.length) return {kind:'dates', points:u, start:u[0], end:u[u.length-1]};
   const ms=[]; MF.forEach((n,k)=>{ let p=-1; while((p=period.indexOf(n,p+1))>-1) ms.push([p,k+1]); });
@@ -545,7 +552,9 @@ async function load(){
     setSrc('מתעדכן מהגיליון. נטען ב-'+now.getDate()+'.'+(now.getMonth()+1)+' בשעה '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')+'.');
   }catch(e){ setSrc('לא הצלחנו לקרוא את הגיליון. מוצגים הנתונים מ-'+CFG.SNAP_DATE+'.'); }
 }
-document.getElementById('editbtn').href = CFG.SHEET_URL;
+(function(){ const eb = document.getElementById('editbtn');
+  const sync = () => { const on = location.hash === '#edit'; eb.hidden = !on; eb.href = on ? CFG.SHEET_URL : '#'; };
+  sync(); addEventListener('hashchange', sync); })();
 render(); load();
 </script>
 
